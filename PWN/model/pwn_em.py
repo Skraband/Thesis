@@ -48,11 +48,10 @@ class PWNEM(Model):
     def train(self, x_in, y_in, val_x, val_y, embedding_sizes, batch_size=256, epochs=100, lr=0.004, lr_decay=0.97):
 
         # TODO: Adjustment for complex optimization, needs documentation
-        if False and self.srnn.config.rnn_layer_config.use_cg_cell:
-            lr /= 4
-
         if type(self.srnn) == TransformerPredictor:
             lr /= 10
+        elif False and self.srnn.config.rnn_layer_config.use_cg_cell:
+            lr /= 4
 
         # Model is trained jointly on all groups
         x_ = np.concatenate(list(x_in.values()), axis=0)
@@ -230,10 +229,10 @@ class PWNEM(Model):
                 srnn_loss_ll_e += l_loss
                 srnn_loss_e += srnn_loss.detach()
 
-                westimator_losses.append(westimator_loss.detach())
-                srnn_losses.append(srnn_loss.detach())
-                srnn_losses_p.append(p_loss.detach())
-                srnn_losses_ll.append(l_loss)
+                westimator_losses.append(westimator_loss.detach().cpu().numpy())#westimator_losses.append(westimator_loss.detach())
+                srnn_losses.append(srnn_loss.detach().cpu().numpy())#srnn_losses.append(srnn_loss.detach())
+                srnn_losses_p.append(p_loss.detach().cpu().numpy())#srnn_losses_p.append(p_loss.detach())
+                srnn_losses_ll.append(l_loss)#srnn_losses_ll.append(l_loss)
 
                 if (i + 1) % 10 == 0:
                     print(f'Epoch {epoch + 1} / {epochs}: Step {(i + 1)} / {len(idx_batches)}. '

@@ -49,11 +49,10 @@ class PWN(Model):
     def train(self, x_in, y_in, val_x, val_y, embedding_sizes, batch_size=256, epochs=70, lr=0.004, lr_decay=0.97):
 
         # TODO: Adjustment for complex optimization, needs documentation
-        if self.srnn.config.rnn_layer_config.use_cg_cell:
-            lr /= 4
-
         if type(self.srnn) == TransformerPredictor:
             lr /= 10
+        elif self.srnn.config.rnn_layer_config.use_cg_cell:
+            lr /= 4
 
         # Model is trained jointly on all groups
         x_ = np.concatenate(list(x_in.values()), axis=0)
