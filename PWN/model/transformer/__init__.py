@@ -1,2 +1,0 @@
-from .transformer_predictor import TransformerPredictor
-from .transformer_config import TransformerConfig
