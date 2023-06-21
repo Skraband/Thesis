@@ -112,10 +112,10 @@ config.fft_compression = m4_settings[m4_key]['fft_compression']
     # None, False)]
 
 experiments = [
-      (ReadM4(key=m4_key), ZScoreNormalization((0,), 3, 2, [True, True, True, False], min_group_size=0,
+     (ReadM4(key=m4_key), ZScoreNormalization((0,), 3, 2, [True, True, True, False], min_group_size=0,
                                            context_timespan=m4_settings[m4_key]['context_timespan'], prediction_timespan=m4_settings[m4_key]['prediction_timespan'],
                                            timespan_step=m4_settings[m4_key]['timespan_step'], single_group=False, multivariate=False, retail=False),
-      PWN(config, config_c, train_spn_on_gt=False, train_spn_on_prediction=True, train_rnn_w_ll=False,
+     PWNEM(config, config_w, train_spn_on_gt=False, train_spn_on_prediction=True, train_rnn_w_ll=False,
           always_detach=True,use_transformer=True, smape_target=True),
       [CorrelationError(), MAE(), MSE(), RMSE(), SMAPE()],
       {'train': False, 'reversed': True, 'll': False, 'single_ll': False, 'mpe': False},
@@ -125,30 +125,31 @@ experiments = [
                                     prediction_timespan=m4_settings[m4_key]['prediction_timespan'],
                                     timespan_step=m4_settings[m4_key]['timespan_step'], single_group=False,
                                     multivariate=False, retail=False),
-      PWNEM(config, config_w, train_spn_on_gt=False, train_spn_on_prediction=True, train_rnn_w_ll=False,
-          always_detach=True, use_transformer=True, smape_target=True),
+     PWNEM(config, config_w, train_spn_on_gt=False, train_spn_on_prediction=True, train_rnn_w_ll=False,
+          always_detach=True, use_transformer=False, smape_target=True),
       [CorrelationError(), MAE(), MSE(), RMSE(), SMAPE()],
       {'train': False, 'reversed': True, 'll': False, 'single_ll': False, 'mpe': False},
-      None, False)]#,
-#      (ReadM4(), ZScoreNormalization((0,), 3, 2, [True, True, True, False], min_group_size=0,
-#                                           context_timespan=m4_settings[m4_key]['context_timespan'], prediction_timespan=m4_settings[m4_key]['prediction_timespan'],
-#                                           timespan_step=m4_settings[m4_key]['timespan_step'], single_group=False, multivariate=False, retail=False),
-#       PWN(config, config_c, train_spn_on_gt=False, train_spn_on_prediction=True, train_rnn_w_ll=False,
-#              always_detach=True,use_transformer=False, smape_target=True),
-#       [CorrelationError(), MAE(), MSE(), RMSE(), SMAPE()],
-#       {'train': False, 'reversed': True, 'll': False, 'single_ll': False, 'mpe': False},
-#       None, False),
-#      (ReadM4(), ZScoreNormalization((0,), 3, 2, [True, True, True, False], min_group_size=0,
-#                                    context_timespan=m4_settings[m4_key]['context_timespan'],
-#                                    prediction_timespan=m4_settings[m4_key]['prediction_timespan'],
-#                                    timespan_step=m4_settings[m4_key]['timespan_step'], single_group=False,
-#                                    multivariate=False, retail=False),
-#      PWN(config, config_c, train_spn_on_gt=False, train_spn_on_prediction=True, train_rnn_w_ll=False,
-#          always_detach=True, use_transformer=True, smape_target=True),
-#      [CorrelationError(), MAE(), MSE(), RMSE(), SMAPE()],
-#      {'train': False, 'reversed': True, 'll': False, 'single_ll': False, 'mpe': False},
-#      None, False)
-# ]
+      None, False),
+     (ReadM4(key=m4_key), ZScoreNormalization((0,), 3, 2, [True, True, True, False], min_group_size=0,
+                                           context_timespan=m4_settings[m4_key]['context_timespan'],
+                                           prediction_timespan=m4_settings[m4_key]['prediction_timespan'],
+                                           timespan_step=m4_settings[m4_key]['timespan_step'], single_group=False, multivariate=False, retail=False),
+     PWN(config, config_c, train_spn_on_gt=False, train_spn_on_prediction=True, train_rnn_w_ll=False,
+              always_detach=True,use_transformer=True, smape_target=True),
+       [CorrelationError(), MAE(), MSE(), RMSE(), SMAPE()],
+       {'train': False, 'reversed': True, 'll': False, 'single_ll': False, 'mpe': False},
+       None, False),
+     (ReadM4(key=m4_key), ZScoreNormalization((0,), 3, 2, [True, True, True, False], min_group_size=0,
+                                    context_timespan=m4_settings[m4_key]['context_timespan'],
+                                    prediction_timespan=m4_settings[m4_key]['prediction_timespan'],
+                                    timespan_step=m4_settings[m4_key]['timespan_step'], single_group=False,
+                                    multivariate=False, retail=False),
+     PWN(config, config_c, train_spn_on_gt=False, train_spn_on_prediction=True, train_rnn_w_ll=False,
+          always_detach=True, use_transformer=False, smape_target=True),
+      [CorrelationError(), MAE(), MSE(), RMSE(), SMAPE()],
+      {'train': False, 'reversed': True, 'll': False, 'single_ll': False, 'mpe': False},
+      None, False)
+]
 
 
 for i, (data_source, preprocessing, model, evaluation_metrics, plots, load, use_cached) in enumerate(experiments):
@@ -186,7 +187,7 @@ for i, (data_source, preprocessing, model, evaluation_metrics, plots, load, use_
 
     if load is None:
         print('Training model...')
-        model.train(train_x, train_y, test_x, test_y, embedding_sizes, epochs=2000)
+        model.train(train_x, train_y, test_x, test_y, embedding_sizes, epochs=2)
         print(f'--- Training finished after {(datetime.now() - start_time).microseconds} microseconds ---')
 
     else:
