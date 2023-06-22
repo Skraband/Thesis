@@ -16,6 +16,9 @@ from datetime import datetime
 
 import numpy as np
 
+import torch
+
+print(torch.cuda.is_available())
 plot_base_path = 'res/plots/'
 model_base_path = 'res/models/'
 experiments_base_path = 'res/experiments/'
@@ -187,7 +190,7 @@ for i, (data_source, preprocessing, model, evaluation_metrics, plots, load, use_
 
     if load is None:
         print('Training model...')
-        model.train(train_x, train_y, test_x, test_y, embedding_sizes, epochs=2)
+        model.train(train_x, train_y, test_x, test_y, embedding_sizes, epochs=5000)
         print(f'--- Training finished after {(datetime.now() - start_time).microseconds} microseconds ---')
 
     else:
