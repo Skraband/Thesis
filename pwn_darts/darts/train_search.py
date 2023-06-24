@@ -88,14 +88,14 @@ logging.getLogger().addHandler(fh)
 #CIFAR_CLASSES = 10
 
 
-def main():
+def main(rand):
 # Set configs for PWN components #######################################################################################
-  np.random.seed(args.seed)
+  np.random.seed(rand)#np.random.seed(args.seed)
   torch.cuda.set_device(args.gpu)
   cudnn.benchmark = True
-  torch.manual_seed(args.seed)
+  torch.manual_seed(rand)#torch.manual_seed(args.seed)
   cudnn.enabled = True
-  torch.cuda.manual_seed(args.seed)
+  torch.cuda.manual_seed(rand)#torch.cuda.manual_seed(args.seed)
   logging.info('gpu device = %d' % args.gpu)
   logging.info("args = %s", args)
   config = SpectralRNNConfig()
@@ -136,10 +136,10 @@ def main():
 ########################################################################################################################
 
 
-  use_M4 = True
+  use_M4 = False
   search_srnn = False
   compare_search_srnn_to_transformer = False
-  search_cwspn = False
+  search_cwspn = True
 
 ###################################  Load  Data ########################################################################
 
@@ -268,7 +268,8 @@ def main():
     if compare_search_srnn_to_transformer:
       spectral_farcaster_modul_2 = srnn_search
     else:
-      spectral_farcaster_modul_1 = srnn_search
+      spectral_farcaster_modul_1 = model_2.srnn.net #SRNN
+      spectral_farcaster_modul_2 = srnn_search
   if search_cwspn:
       cwspn_nn = cwspn_weight_nn_search
   if not torch.cuda.is_available():
@@ -419,5 +420,6 @@ def infer(valid_queue, model, criterion, pwn_model):
 
 if __name__ == '__main__':
   torch.autograd.set_detect_anomaly(True)
-  main() 
+  main(rand = 113)
+
 

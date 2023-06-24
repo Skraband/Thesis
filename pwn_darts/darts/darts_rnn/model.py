@@ -15,20 +15,12 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class DARTSCell(nn.Module):
 
-  def __init__(self,config_layer,ninp, nhid, dropouth, dropoutx, genotype):
+  def __init__(self,config_layer,fix_weight,ninp, nhid, dropouth, dropoutx, genotype):
     super(DARTSCell, self).__init__()
-    #self.nhid = nhid
-    #self.dropouth = dropouth
-    #self.dropoutx = dropoutx
-    #self.genotype = genotype
-
+    self.fix_weight = fix_weight
     # genotype is None when doing arch search
-    #steps = len(self.genotype.recurrent) if self.genotype is not None else STEPS
     steps = STEPS
-    #self._W0 = nn.Parameter(torch.Tensor(ninp+nhid, 2*nhid).uniform_(-INITRANGE, INITRANGE))
-    #self._Ws = nn.ParameterList([
-    #    nn.Parameter(torch.Tensor(nhid, 2*nhid).uniform_(-INITRANGE, INITRANGE)) for i in range(steps)
-    #])
+
     if config_layer.rnn_layer_config.use_gated:
         cell = torch.nn.GRUCell
     self.layer = nn.ModuleList([
@@ -63,20 +55,6 @@ class DARTSCell(nn.Module):
     h0 = h0.tanh()
     s0 = h_prev + c0 * (h0-h_prev)
     return s0
-
-  #def _get_activation(self, name):
-  #  if name == 'tanh':
-  #    f = F.tanh
-  #    #f = torch.tanh()
-  #  elif name == 'relu':
-  #    f = F.relu
-  #  elif name == 'sigmoid':
-  #    f = F.sigmoid
-  #  elif name == 'identity':
-  #    f = lambda x: x
-  #  else:
-  #    raise NotImplementedError
-  #  return f
 
   def cell(self, x, h_prev, x_mask, h_mask):
     s0 = self._compute_init_state(x, h_prev, x_mask, h_mask)
@@ -121,30 +99,21 @@ class RNNModel(nn.Module):
         #self.encoder = nn.Embedding(ntoken, ninp)
         self.stft = stft
         self.config = config_layer
+        self.fix_weight = False
 
         if config_layer.use_only_ts_input:
             self.f_in = nn.ModuleList([self.stft])
 
-        #assert ninp == nhid == nhidlast
         if cell_cls == DARTSCell:
             assert genotype is not None
-            self.rnns = [cell_cls(config_layer,ninp, nhid, dropouth, dropoutx, genotype)]
+            self.rnns = [cell_cls(config_layer,self.fix_weight,ninp, nhid, dropouth, dropoutx, genotype)]
         else:
             assert genotype is None
-            self.rnns = [cell_cls(config_layer,ninp, nhid, dropouth, dropoutx)]
+            self.rnns = [cell_cls(config_layer,self.fix_weight,ninp, nhid, dropouth, dropoutx)]
 
         steps = STEPS
-        #if config_layer.rnn_layer_config.use_gated:
-        #    cell = torch.nn.GRUCell
-        #self.rnns = RNNLayer(cell, config_layer)
-        #self.rnns = nn.ModuleList([
-        #    RNNLayer(cell, config_layer) for i in range(steps)
-        #])
 
         self.rnns = torch.nn.ModuleList(self.rnns)
-        #self.decoder = nn.Linear(ninp, ntoken)
-        #self.decoder.weight = self.encoder.weight
-        #self.init_weights()
 
         self.ninp = ninp
         self.nhid = nhid

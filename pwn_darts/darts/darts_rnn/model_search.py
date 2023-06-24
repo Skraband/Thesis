@@ -9,10 +9,10 @@ from darts.darts_rnn.model import DARTSCell, RNNModel
 
 class DARTSCellSearch(DARTSCell):
 
-  def __init__(self,config_layer, ninp, nhid, dropouth, dropoutx):
-    super(DARTSCellSearch, self).__init__(config_layer,ninp, nhid, dropouth, dropoutx, genotype=None)
+  def __init__(self,config_layer,fix_weight, ninp, nhid, dropouth, dropoutx):
+    super(DARTSCellSearch, self).__init__(config_layer,fix_weight,ninp, nhid, dropouth, dropoutx, genotype=None)
     self.bn = nn.BatchNorm1d(nhid, affine=False)
-
+    self.fix_weight = fix_weight
   def cell(self, x,srnn_arch_weights):
     #s0 = self._compute_init_state(x, h_prev, x_mask, h_mask)
     #s0 = self.bn(s0)
@@ -22,17 +22,6 @@ class DARTSCellSearch(DARTSCell):
     #states = [x]
     states = x.unsqueeze(0)
     for i in range(STEPS):
-      #if self.training:
-      #  masked_states = states * h_mask.unsqueeze(0)
-      #else:
-      #  masked_states = states
-      #ch = masked_states.view(-1, self.nhid).mm(self._Ws[i]).view(i+1, -1, 2*self.nhid)
-      #c, h = torch.split(ch, self.nhid, dim=-1)
-      #c = c.sigmoid()
-      #s = torch.zeros_like(s0)
-      #for j in range(len(states)):
-      #  raw_out,h = self.layer[i](states[j])
-
 
       ###### Test multiple connections ########
       raw_out = torch.zeros(states.shape).cuda()
@@ -40,9 +29,6 @@ class DARTSCellSearch(DARTSCell):
       for idx,state in enumerate(states):
 
         raw_out[idx],h = self.layer[i](state)
-
-      #########################################
-      #raw_out,h = self.layer[i](states[i])#self.layer[i](states[i].clone())
 
       for k, name in enumerate(PRIMITIVES):
         if name == 'none':
@@ -129,3 +115,7 @@ class RNNModelSearch(RNNModel):
       genotype = Genotype(recurrent=gene, concat=range(STEPS+1)[-CONCAT:])
       return genotype
 
+    def fix_arch_params(self,arch_params):
+      self.weights = arch_params
+      self.fix_weight = True
+      return
