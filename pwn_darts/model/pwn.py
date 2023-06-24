@@ -279,7 +279,8 @@ class PWN(Model):
                 srnn_losses_p.append(p_loss.detach().cpu().numpy())
                 srnn_losses_ll.append(l_loss)
 
-                if (i + 1) % 10 == 0:
+                #if (i + 1) % epochs == 0:
+                if i == 0:
                     print(f'Epoch {epoch + 1} / {epochs}: Step {(i + 1)} / {len(idx_batches)}. '
                           f'Avg. WCSPN Loss: {westimator_loss_e / (i + 1)} '
                           f'Avg. SRNN Loss: {srnn_loss_e / (i + 1)}')
