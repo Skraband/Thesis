@@ -60,7 +60,7 @@ config_t = TransformerConfig()
 
 manual_split = True
 
-m4_key = 'Daily'
+m4_key = 'Yearly'
 m4_settings = {
     'Hourly': {'window_size': 24, 'fft_compression': 2, 'context_timespan': int(20 * 24),
                'prediction_timespan': int(2 * 24), 'timespan_step': int(.5 * 24)},  # 700 Min Context
