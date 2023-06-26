@@ -12,7 +12,7 @@ import torch.nn as nn
 from darts.darts_cnn.model_search import Network as CWSPNModelSearch
 from darts.darts_rnn.model_search import RNNModelSearch
 
-
+from datetime import datetime
 # Use GPU if avaiable
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -174,6 +174,13 @@ class PWNEM(Model):
             srnn_loss_e = 0
             westimator_loss_e = 0
             for i, idx in enumerate(idx_batches):
+                #if (i+1) % 1 == 0:
+                #    model_base_path = 'res/models/'
+                #    model_name = f'{self.identifier}'
+                #    experiment_id = f'{datetime.now().strftime("%m_%d_%Y_%H_%M_%S")}__{model_name}'
+                #    model_filepath = f'{model_base_path}{experiment_id}'
+                #    self.save(model_filepath)
+
                 batch_x, batch_y = x[idx].detach().clone(), y[idx, :].detach().clone()
                 batch_westimator_x, batch_westimator_y = self.westimator.prepare_input(batch_x[:, :, -1], batch_y)
 
@@ -287,7 +294,8 @@ class PWNEM(Model):
                 srnn_losses_p.append(p_loss.detach().cpu().numpy())#srnn_losses_p.append(p_loss.detach())
                 srnn_losses_ll.append(l_loss)#srnn_losses_ll.append(l_loss)
 
-                if (i + 1) % 10 == 0:
+                #if (i + 1) % 10 == 0:
+                if i == 0:
                     print(f'Epoch {epoch + 1} / {epochs}: Step {(i + 1)} / {len(idx_batches)}. '
                           f'Avg. WCSPN Loss: {westimator_loss_e / (i + 1)} '
                           f'Avg. SRNN Loss: {srnn_loss_e / (i + 1)}')
@@ -345,7 +353,12 @@ class PWNEM(Model):
                 for i in range(x.shape[0] // batch_size + 1):
                     batch_x, batch_y = x[i * batch_size:(i + 1) * batch_size], \
                                        y[i * batch_size:(i + 1) * batch_size]
-                    prediction, f_c = self.srnn.net(batch_x, batch_y, return_coefficients=True)
+
+                    if self.srnn.config.use_searched_srnn:
+                        prediction, f_c = self.srnn.net(batch_x, batch_y, self.srnn.net.weights,
+                                                            return_coefficients=True)
+                    else:
+                        prediction, f_c = self.srnn.net(batch_x, batch_y, return_coefficients=True)
 
                     predictions.append(prediction)
                     f_cs.append(f_c)
