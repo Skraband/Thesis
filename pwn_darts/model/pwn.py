@@ -180,11 +180,11 @@ class PWN(Model):
         for epoch in range(epochs):
             idx_batches = torch.randperm(x.shape[0], device=device).split(batch_size)
 
-            if epoch % 1000:
-                model_base_path = 'res/models/'
-                model_name = f'{self.identifier}-{str(epoch)}'
-                model_filepath = f'{model_base_path}{model_name}'
-                self.save(model_filepath)
+            #if epoch % 1000:
+            #    model_base_path = 'res/models/'
+            #    model_name = f'{self.identifier}-{str(epoch)}'
+            #    model_filepath = f'{model_base_path}{model_name}'
+            #    self.save(model_filepath)
 
             srnn_loss_p_e = 0
             srnn_loss_ll_e = 0
